@@ -1,4 +1,5 @@
 #include <iostream>
+#include <ncurses.h>
 #include "worldGen.h"
 #include "material.h"
 #include <stdio.h>
@@ -48,21 +49,16 @@ World::World(int sz, string matBase, string matAdd, double rate, bool clumping, 
         }
     }
 
-    /*
-    map = new string*[sz];
-    for(int i = 0; i < sz; i++)
-        map[i] = new string[sz];
-    for(int i = 0; i < sz; i++){
-        for(int j = 0; j < sz; j++){
-            map[i][j] = matBase;
-        }
-    }*/
-
     this->sprinkle(matAdd, rate, clumping);
     if(rate2 > 0)
         this->sprinkle(matAdd2, rate2, clumping2);
     if(rate3 > 0)
         this->sprinkle(matAdd3, rate3, clumping3);
+
+    map[0][0] = Material("bahhhh");
+    map[1][1] = Material("bahhhh");
+    map[2][2] = Material("bahhhh");
+    map[sz - 1][sz - 1] = Material("bahhh");
 }
 
 World::World(string worldTemplate, int sz, int xCoord, int yCoord){
@@ -182,7 +178,49 @@ int World::getSize(){
     return size;
 }
 
-//DISPLAYS WORLD
+//DISPLAYS WORLD                         TODO: CREATE STACK/QUEUE(?) TO TRACK CHANGES FOR AN "UPDATEMAP" FUNCTION, AVOIDS GOING THRU WHOLE DISPLAYMAP LOOP ALWAYS 
+void World::displayMap(WINDOW * win){
+    //resizeterm(size + 2, size + 2);
+    int height, width, startX, startY;
+    height = width = size + 2;
+    startX = startY = 1;
+    win = newwin(height, width, startX, startY);
+
+    refresh();
+
+    box(win, 0, 0);
+    wrefresh(win);
+
+    //create frame for map
+    /*
+    mvvline(1, 0, '|', size - 2);
+    mvvline(1, size - 1, '|', size - 2);
+    mvhline(0, 1, '-', size - 2);
+    mvhline(size - 1, 1, '-', size - 2);
+    mvaddch(0, 0, '/');
+    mvaddch(0, size - 1, '\\');
+    mvaddch(size - 1, 0, '\\');
+    mvaddch(size - 1, size - 1, '/');*/
+
+    //draw map
+    for(int i = 0; i < size; i++){
+        for(int j = 0; j < size; j++){
+            //cout << map[i][j].getColor();
+            mvwaddch(win, j + 1, i + 1, map[i][j].getGraphic());
+            //cout << NC;
+            //cout << map[i][j].getColor() << map[i][j].getGraphic() << NC << " ";
+        }
+        //cout << endl;
+    }
+   
+    wrefresh(win);
+    
+    getch();
+    getch();
+
+}
+
+/* DISPLAYS WORLD (OLD VERSION, NON NCURSES)
 void World::displayMap(){
     for(int i = 0; i < size; i++){
         for(int j = 0; j < size; j++)
@@ -190,11 +228,11 @@ void World::displayMap(){
         cout << endl;
     }
 
-    /* FOR WIDER SPACING
+     FOR WIDER SPACING
         for(int i = 0; i < size; i++){
         for(int j = 0; j < size; j++)
             cout << map[i][j] << "   ";
         cout << endl;
         cout << endl;
-    }*/
-}
+    }
+}*/

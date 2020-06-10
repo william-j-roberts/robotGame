@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <ncurses.h>
 #include "material.h"
 using namespace std;
 
@@ -21,7 +22,7 @@ public:
     void riverGen(string mat);
     pair <int, int> getCoords();
     int getSize();
-    void displayMap();
+    void displayMap(WINDOW * win);
 
 protected:
     //string ** map;
