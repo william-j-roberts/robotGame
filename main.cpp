@@ -44,8 +44,6 @@ int main(){
     noecho();
     keypad(stdscr, TRUE);
 
-    int height = 42;
-
     WINDOW * win;
 
     //int numCols = COLS - 1;
