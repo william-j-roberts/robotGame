@@ -1,4 +1,5 @@
 #include <iostream>
+#include <ncurses.h>
 #include "worldGen.h"
 #include "material.h"
 using namespace std;
@@ -31,19 +32,29 @@ const string LIGHT_CYAN = "\033[1;36m";
 const string WHITE = "\033[1;37m";
 const string NC = "\033[1m"; //No Color*/
 
+void userInput(){
+
+}
+
 int main(){
     srand((unsigned)time(0));
-    //World newWorld(40, "nothing", "tree", 0.055, true, "water", 0.035, true, "nothing", 0.0, true, 0, 0);
-    World newWorld("standard", 65, 0, 0);
-    cout << "newWorld is a " << newWorld.getSize() << "x" << newWorld.getSize() << " map." << endl;
-    cout << endl;
-    newWorld.displayMap();
-    /*
-    cout << endl;
-    cout << endl;
-    newWorld.mountainGen(12, 1);
-    newWorld.displayMap();*/
 
+    initscr();
+    cbreak();
+    noecho();
+    keypad(stdscr, TRUE);
+
+    int height = 42;
+
+    WINDOW * win;
+
+    //int numCols = COLS - 1;
+    //int numRows = LINES - 1;
+
+    World newWorld(40, "nothing", "tree", 0.055, true, "water", 0.035, false, "nothing", 0.0, false, 0, 0);
+    newWorld.displayMap(win);
+
+    endwin();
     newWorld.timeToDeallocate();
 
     return 0;
