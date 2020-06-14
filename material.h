@@ -1,5 +1,5 @@
-#include <iostream>
-using namespace std;
+#include <ncurses.h>
+#include "materialType.h"
 
 #ifndef MATERIAL_H
 #define MATERIAL_H
@@ -7,15 +7,18 @@ using namespace std;
 class Material{
 public:
     Material();
-    Material(string type);
-    string getType();
-    void setType(string type);
+    Material(materialType type);
+    materialType getType();
+    void setType(materialType type);
     char getGraphic();
-    string getColor();
+    int getColor();
+    void explore();
+    void occupy();
+    void leave();
 protected:
-    string matType;
+    materialType matType;
     char graphic;
-    string color;
+    int color;
     bool hidden;
     bool occupiedByPlayer;
 };
