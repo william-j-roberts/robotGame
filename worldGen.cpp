@@ -177,29 +177,26 @@ int World::getSize(){
 }
 
 //DISPLAYS WORLD                         TODO: CREATE STACK/QUEUE(?) TO TRACK CHANGES FOR AN "UPDATEMAP" FUNCTION, AVOIDS GOING THRU WHOLE DISPLAYMAP LOOP ALWAYS 
-void World::displayMap(WINDOW * win, int startX, int startY){
-    //resizeterm(size + 2, size + 2);
+WINDOW * World::displayMap(int startX, int startY){
+    WINDOW * tempWin;
     int height, width;
     height = width = size + 2;
-    win = newwin(height, width, startX, startY);
+    tempWin = newwin(height, width, startX, startY);
 
     refresh();
 
     //create border around map
-    box(win, 0, 0);
-    wrefresh(win);
+    box(tempWin, 0, 0);
 
     //draw map
     for(int i = 0; i < size; i++){
         for(int j = 0; j < size; j++){
-            wattron(win, COLOR_PAIR(map[i][j].getColor()));
-            mvwaddch(win, j + 1, i + 1, map[i][j].getGraphic());
-            wattroff(win, COLOR_PAIR(map[i][j].getColor()));
+            wattron(tempWin, COLOR_PAIR(map[i][j].getColor()));
+            mvwaddch(tempWin, j + 1, i + 1, map[i][j].getGraphic());
+            wattroff(tempWin, COLOR_PAIR(map[i][j].getColor()));
         }
     }
    
-    wrefresh(win);
-    
-    getch();
-    getch();
+    wrefresh(tempWin);
+    return tempWin;
 }

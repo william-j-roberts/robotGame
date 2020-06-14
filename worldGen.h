@@ -17,7 +17,7 @@ public:
     void riverGen(materialType mat);
     std::pair <int, int> getCoords();
     int getSize();
-    void displayMap(WINDOW * win, int startX, int startY);
+    WINDOW * displayMap(int startX, int startY);
 
 protected:
     Material** map;

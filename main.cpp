@@ -16,8 +16,63 @@ void makeColors(){
     init_pair(PAIR_ROCK, COLOR_BLACK, COLOR_WHITE);
 }
 
-void userInput(){
+void userInput(WINDOW * playerWin, int startX, int startY){
+    int x = startX;
+    int y = startY;
+    int input;
+    //mvwaddch(playerWin, 5, 5, '!');
 
+    do{
+        mvwaddch(playerWin, y, x, '#');
+        move(y, x);
+        wrefresh(playerWin);
+
+        input = getch();
+        switch(input){
+            case KEY_UP:
+                y -= 1;
+                break;
+            case KEY_LEFT:
+                x -= 1;
+                break;
+            case KEY_RIGHT:
+                x += 1;
+                break;
+            case KEY_DOWN:
+                y += 1;
+                break;
+        }
+
+    }while(input != 'q' && input != 'Q');
+}
+
+void userInput(int startX, int startY){
+    int x = startX;
+    int y = startY;
+    int input;
+
+    do{
+        mvaddch(y, x, 'O');
+        move(y, x);
+        refresh();
+
+        input = getch();
+        switch(input){
+            case KEY_UP:
+                y -= 1;
+                break;
+            case KEY_LEFT:
+                x -= 1;
+                break;
+            case KEY_RIGHT:
+                x += 1;
+                break;
+            case KEY_DOWN:
+                y += 1;
+                break;
+        }
+
+    }while(input != 'q' && input != 'Q');
 }
 
 int main(){
@@ -34,16 +89,24 @@ int main(){
     }else{
         start_color();
         makeColors();
-        WINDOW * win;
-        WINDOW * win2;
-
+        
         //int numCols = COLS - 1;
         //int numRows = LINES - 1;
 
         World newWorld(40, nothing, tree, 0.055, true, water, 0.035, false, nothing, 0.0, false, 0, 0);
-        newWorld.displayMap(win, 0, 0);
-        newWorld.displayMap(win2, 0, 45);
+        WINDOW * win;
+        win = newWorld.displayMap(0, 0);
 
+        getch();
+
+        mvwaddch(win, 5, 5, '%');
+        wrefresh(win);
+
+        getch();
+
+        userInput(win, 14, 14);
+        //userInput(12, 12);
+        
         endwin();
         newWorld.timeToDeallocate();
     }
