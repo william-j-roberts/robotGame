@@ -16,59 +16,39 @@ void makeColors(){
     init_pair(PAIR_ROCK, COLOR_BLACK, COLOR_WHITE);
 }
 
+/*bool canMove(WINDOW * playerWin, int x, int y){
+    if(mvwinch(playerWin, y, x) != '│' && mvwinch(playerWin, y, x) != '─')
+        return true;
+    return false;
+}*/
+
 void userInput(WINDOW * playerWin, int startX, int startY){
     int x = startX;
     int y = startY;
     int input;
-    //mvwaddch(playerWin, 5, 5, '!');
 
     do{
         mvwaddch(playerWin, y, x, '#');
-        move(y, x);
+        wmove(playerWin, y, x);
         wrefresh(playerWin);
 
         input = getch();
         switch(input){
             case KEY_UP:
-                y -= 1;
+                if(y > 1)
+                    y -= 1;
                 break;
             case KEY_LEFT:
-                x -= 1;
+                if(x > 1)
+                    x -= 1;
                 break;
             case KEY_RIGHT:
-                x += 1;
+                if(x < 40)
+                    x += 1;
                 break;
             case KEY_DOWN:
-                y += 1;
-                break;
-        }
-
-    }while(input != 'q' && input != 'Q');
-}
-
-void userInput(int startX, int startY){
-    int x = startX;
-    int y = startY;
-    int input;
-
-    do{
-        mvaddch(y, x, 'O');
-        move(y, x);
-        refresh();
-
-        input = getch();
-        switch(input){
-            case KEY_UP:
-                y -= 1;
-                break;
-            case KEY_LEFT:
-                x -= 1;
-                break;
-            case KEY_RIGHT:
-                x += 1;
-                break;
-            case KEY_DOWN:
-                y += 1;
+                if(y < 40)
+                    y += 1;
                 break;
         }
 
@@ -93,19 +73,14 @@ int main(){
         //int numCols = COLS - 1;
         //int numRows = LINES - 1;
 
+        //generate and display map
         World newWorld(40, nothing, tree, 0.055, true, water, 0.035, false, nothing, 0.0, false, 0, 0);
         WINDOW * win;
-        win = newWorld.displayMap(0, 0);
+        win = newWorld.displayMap(1, 0);
+        mvaddstr(0, 0, "Navigate with WASD or arrow keys, press q to quit");
 
-        getch();
-
-        mvwaddch(win, 5, 5, '%');
-        wrefresh(win);
-
-        getch();
-
+        //allow user to navigate/interact with program
         userInput(win, 14, 14);
-        //userInput(12, 12);
         
         endwin();
         newWorld.timeToDeallocate();

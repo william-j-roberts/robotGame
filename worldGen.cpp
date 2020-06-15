@@ -3,6 +3,7 @@
 #include "worldGen.h"
 #include "material.h"
 #include "materialType.h"
+#include "direction.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>

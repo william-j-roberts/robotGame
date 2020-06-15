@@ -10,7 +10,7 @@ main.o: main.cpp material.h worldGen.h colorDefinitions.h
 
 material.o: material.h colorDefinitions.h
 
-worldGen.o: worldGen.h material.h colorDefinitions.h
+worldGen.o: worldGen.h material.h colorDefinitions.h direction.h
 
 clean:
 	rm *.o main
