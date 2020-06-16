@@ -22,33 +22,54 @@ void makeColors(){
     return false;
 }*/
 
-void userInput(WINDOW * playerWin, int startX, int startY){
+void userInput(WINDOW * playerWin, int startX, int startY, int sz){
     int x = startX;
     int y = startY;
     int input;
+    char * txtInput;
 
     do{
         mvwaddch(playerWin, y, x, '#');
-        wmove(playerWin, y, x);
+        move(5 + sz + 2, 6);
         wrefresh(playerWin);
 
         input = getch();
         switch(input){
+            case 'W':
+            case 'w':
             case KEY_UP:
                 if(y > 1)
                     y -= 1;
                 break;
+            case 'A':
+            case 'a':
             case KEY_LEFT:
                 if(x > 1)
                     x -= 1;
                 break;
+            case 'D':
+            case 'd':
             case KEY_RIGHT:
-                if(x < 40)
+                if(x < sz)
                     x += 1;
                 break;
+            case 'S':
+            case 's':
             case KEY_DOWN:
-                if(y < 40)
+                if(y < sz)
                     y += 1;
+                break;
+            case 'T':
+            case 't':
+                move(5 + sz + 2, 6);
+                wrefresh(playerWin);
+                echo();
+                do{
+                    getstr(txtInput);
+                    mvaddstr(5 + sz + 2, 6, txtInput);
+                    
+                }while(txtInput != "move");
+                noecho();
                 break;
         }
 
@@ -74,13 +95,14 @@ int main(){
         //int numRows = LINES - 1;
 
         //generate and display map
-        World newWorld(40, nothing, tree, 0.055, true, water, 0.035, false, nothing, 0.0, false, 0, 0);
+        int worldSize = 40;
+        World newWorld(worldSize, nothing, tree, 0.055, true, water, 0.035, false, nothing, 0.0, false, 0, 0);
         WINDOW * win;
-        win = newWorld.displayMap(1, 0);
+        win = newWorld.displayMap(5, 6);
         mvaddstr(0, 0, "Navigate with WASD or arrow keys, press q to quit");
 
         //allow user to navigate/interact with program
-        userInput(win, 14, 14);
+        userInput(win, 14, 14, worldSize);
         
         endwin();
         newWorld.timeToDeallocate();
