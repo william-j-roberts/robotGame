@@ -13,18 +13,20 @@ using namespace std;
 //SZ refers to length/width of square grid
 //MATBASE refers to base material of world
 //XCOORD & YCOORD refer to x and y position of world
-World::World(int sz, materialType matBase, int xCoord, int yCoord){
-    size = sz;
+World::World(int len, int wid, int xCoord, int yCoord, bool isStatic, materialType matBase){
+    length = len;
+    width = wid;
     coords = make_pair(xCoord, yCoord);
+    staticMap = isStatic;
     materialBase = matBase;
     materialAdd = null;
     materialAdd2 = null;
     materialAdd3 = null;
-    map = new Material*[sz];
-    for(int i = 0; i < sz; i++)
-        map[i] = new Material[sz];
-    for(int i = 0; i < sz; i++)
-        for(int j = 0; j < sz; j++)
+    map = new Material*[wid];
+    for(int i = 0; i < wid; i++)
+        map[i] = new Material[len];
+    for(int i = 0; i < wid; i++)
+        for(int j = 0; j < len; j++)
             map[i][j] = Material(matBase);
 }
 
@@ -32,19 +34,21 @@ World::World(int sz, materialType matBase, int xCoord, int yCoord){
 //MATADD refers to supplementary material to be added to world
 //RATE refers to frequency of material being added
 //CLUMPING refers to if material occurs more often in clusters
-World::World(int sz, materialType matBase, materialType matAdd, double rate, bool clumping, materialType matAdd2, double rate2, bool clumping2, materialType matAdd3, double rate3, bool clumping3, int xCoord, int yCoord){
-    size = sz;
+World::World(int len, int wid, int xCoord, int yCoord, bool isStatic, materialType matBase, materialType matAdd, double rate, bool clumping, materialType matAdd2, double rate2, bool clumping2, materialType matAdd3, double rate3, bool clumping3){
+    length = len;
+    width = wid;
     coords = make_pair(xCoord, yCoord);
+    staticMap = isStatic;
     materialBase = matBase;
     materialAdd = matAdd;
     materialAdd2 = matAdd2;
     materialAdd3 = matAdd3;
 
-    map = new Material*[sz];
-    for(int i = 0; i < sz; i++)
-        map[i] = new Material[sz];
-    for(int i = 0; i < sz; i++){
-        for(int j = 0; j < sz; j++){
+    map = new Material*[wid];
+    for(int i = 0; i < wid; i++)
+        map[i] = new Material[len];
+    for(int i = 0; i < wid; i++){
+        for(int j = 0; j < len; j++){
             map[i][j] = Material(matBase);
         }
     }
@@ -58,37 +62,39 @@ World::World(int sz, materialType matBase, materialType matAdd, double rate, boo
     map[0][0] = Material(test);
     map[1][1] = Material(test);
     map[2][2] = Material(test);
-    map[sz - 1][sz - 1] = Material(test);
+    map[wid - 1][len - 1] = Material(test);
 }
 
-World::World(string worldTemplate, int sz, int xCoord, int yCoord){
-    size = sz;
+World::World(std::string worldTemplate, int len, int wid, int xCoord, int yCoord, bool isStatic){
+    length = len;
+    width = wid;
     coords = make_pair(xCoord, yCoord);
+    staticMap = isStatic;
     materialBase = grass;
     materialAdd = water;
     materialAdd2 = tree;
     materialAdd3 = null;
-    map = new Material*[sz];
-        for(int i = 0; i < sz; i++)
-            map[i] = new Material[sz];
+    map = new Material*[wid];
+    for(int i = 0; i < wid; i++)
+        map[i] = new Material[len];
 
     if(worldTemplate == "standard"){
-        for(int i = 0; i < sz; i++)
-            for(int j = 0; j < sz; j++)
+        for(int i = 0; i < wid; i++)
+            for(int j = 0; j < len; j++)
                 map[i][j] = Material(grass); //or nothing? or make grass have blank symbol?
         this->sprinkle(water, 0.04, true);
         this->sprinkle(tree, 0.05, true);
 
     //World newWorld(40, "nothing", "tree", 0.055, true, "water", 0.035, true, "nothing", 0.0, true, 0, 0);
     }else if(worldTemplate == "forest"){
-        for(int i = 0; i < sz; i++)
-            for(int j = 0; j < sz; j++)
+        for(int i = 0; i < wid; i++)
+            for(int j = 0; j < len; j++)
                 map[i][j] = Material(grass); //or nothing? or make grass have blank symbol?
         this->sprinkle(water, 0.035, true);
         this->sprinkle(tree, 0.045, true);
     }else{
-        for(int i = 0; i < sz; i++)
-            for(int j = 0; j < sz; j++)
+        for(int i = 0; i < wid; i++)
+            for(int j = 0; j < len; j++)
                 map[i][j] = Material(grass); //or nothing? or make grass have blank symbol?
         this->sprinkle(water, 0.035, true);
         this->sprinkle(tree, 0.045, true);
@@ -96,7 +102,7 @@ World::World(string worldTemplate, int sz, int xCoord, int yCoord){
 }
 
 void World::timeToDeallocate(){
-    for(int i=0; i<size; i++)
+    for(int i=0; i<width; i++)
         delete[] map[i];
     delete[] map;
 }
@@ -104,7 +110,7 @@ void World::timeToDeallocate(){
 //CHECKS IF SURROUNDING SPACES CONTAIN SAME MATERIAL, EACH ADDITIONAL NEARBY MATERIAL INCREASES MULTIPLIER
 int World::nearbyMat(materialType mat, int x, int y){
     int multiplier = 1;
-    if(x > 0 && x < (size - 1) && y > 0 && y < (size - 1)){
+    if(x > 0 && x < (width - 1) && y > 0 && y < (length - 1)){
         for(int j = y - 1; j <= y + 1; j++){
             for(int i = x - 1; i <= x + 1; i++){
                 if(map[i][j].getType() == mat)
@@ -137,14 +143,14 @@ void World::sprinkle(materialType mat, double intensity, bool clumping){
     int chance = 1000 * intensity;
     
     if(clumping){
-        for(int i=0; i<size; i++){
-            for(int j=0; j<size; j++)
+        for(int i=0; i<width; i++){
+            for(int j=0; j<length; j++)
                 if((rand() % 1000 + 1) <= chance * nearbyMat(mat, i, j))
                     map[i][j].setType(mat);
         }
     }else{
-        for(int i=0; i<size; i++){
-            for(int j=0; j<size; j++){
+        for(int i=0; i<width; i++){
+            for(int j=0; j<length; j++){
                 if((rand() % 1000 + 1) <= chance)
                     map[i][j].setType(mat);
             }
@@ -157,8 +163,8 @@ void World::mountainGen(int numRanges, int mtnSize){
     pair<int, int> peak;
 
     for(int i=0; i<numRanges; i++){
-        peak.first = rand() % size;
-        peak.second = rand() % size;
+        peak.first = rand() % ((width + length) / 2);
+        peak.second = rand() % ((width + length) / 2);
         map[peak.first][peak.second].setType(mountain_peak);
     }
 }
@@ -172,17 +178,27 @@ pair <int, int> World::getCoords(){
     return coords;
 }
 
-//RETURNS SIZE (WIDTH) OF WORLD
-int World::getSize(){
-    return size;
+//RETURNS LENGTH OF WORLD
+int World::getLength(){
+    return length;
+}
+
+//RETURNS WIDTH OF WORLD
+int World::getWidth(){
+    return width;
+}
+
+//CHECK IF MAP IS STATIC; IF STATIC, PLAYER NAVIGATES WORLD SCREEN BY SCREEN; OTHERWISE, WORLD MOVES PAST
+bool World::checkIfStatic(){
+    return staticMap;
 }
 
 //DISPLAYS WORLD                         TODO: CREATE STACK/QUEUE(?) TO TRACK CHANGES FOR AN "UPDATEMAP" FUNCTION, AVOIDS GOING THRU WHOLE DISPLAYMAP LOOP ALWAYS 
-WINDOW * World::displayMap(int startX, int startY){
+WINDOW * World::displayStaticMap(int startX, int startY){
     WINDOW * tempWin;
-    int height, width;
-    height = width = size + 2;
-    tempWin = newwin(height, width, startX, startY);
+    int winLength = length + 2;  
+    int winWidth = width + 2;
+    tempWin = newwin(winLength, winWidth, startX, startY);
 
     refresh();
 
@@ -190,8 +206,8 @@ WINDOW * World::displayMap(int startX, int startY){
     box(tempWin, 0, 0);
 
     //draw map
-    for(int i = 0; i < size; i++){
-        for(int j = 0; j < size; j++){
+    for(int i = 0; i < width; i++){
+        for(int j = 0; j < length; j++){
             wattron(tempWin, COLOR_PAIR(map[i][j].getColor()));
             mvwaddch(tempWin, j + 1, i + 1, map[i][j].getGraphic());
             wattroff(tempWin, COLOR_PAIR(map[i][j].getColor()));
